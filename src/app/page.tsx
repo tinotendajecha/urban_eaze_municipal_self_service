@@ -1,5 +1,6 @@
 import React from 'react';
 import { Building2, FileText, Bell, Shield, ChevronRight, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 const features = [
   {
@@ -72,9 +73,11 @@ function App() {
             UrbanEase makes bill payments, service requests, and municipal communication seamless and hassle-free.
           </p>
           <div className="flex justify-center gap-4">
+            <Link href="/auth/login">
             <button className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
               Get Started <ArrowRight className="w-5 h-5" />
             </button>
+            </Link>
             <button className="px-8 py-4 bg-white text-gray-800 rounded-full font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
               Learn More
             </button>
