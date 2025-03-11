@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // Change to "mysql" or "sqlite" if needed
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  phone     String   @unique
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
+
+  bills          Bill[]
+  payments       Payment[]
+  serviceRequests ServiceRequest[]
+  notifications  Notification[]
+
+  AdminLog AdminLog[]
+}
+
+model Bill {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  billType  BillType
+  amount    Decimal
+  status    BillStatus @default(PENDING)
+  dueDate   DateTime
+  createdAt DateTime @default(now())
+
+  payments Payment[]
+}
+
+model Payment {
+  id            String   @id @default(uuid())
+  user          User     @relation(fields: [userId], references: [id])
+  userId        String
+  bill          Bill     @relation(fields: [billId], references: [id])
+  billId        String
+  amountPaid    Decimal
+  paymentMethod PaymentMethod
+  status        PaymentStatus @default(PENDING)
+  transactionId String   @unique
+  createdAt     DateTime @default(now())
+}
+
+model ServiceRequest {
+  id          String   @id @default(uuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  category    ServiceCategory
+  description String
+  status      RequestStatus @default(PENDING)
+  assignedTo  String?  // Municipal staff ID (optional, nullable)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  message   String
+  status    NotificationStatus @default(UNREAD)
+  createdAt DateTime @default(now())
+}
+
+model AdminLog {
+  id        String   @id @default(uuid())
+  admin     User     @relation(fields: [adminId], references: [id])
+  adminId   String
+  action    String
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  ADMIN
+  MUNICIPAL_STAFF
+  RESIDENT
+}
+
+enum BillType {
+  WATER
+  PROPERTY_TAX
+  ELECTRICITY
+}
+
+enum BillStatus {
+  PENDING
+  PAID
+}
+
+enum PaymentMethod {
+  MOBILE_MONEY
+  CREDIT_CARD
+  BANK_TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum ServiceCategory {
+  WATER_ISSUE
+  STREETLIGHT_REPAIR
+  GARBAGE_COLLECTION
+}
+
+enum RequestStatus {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+}
+
