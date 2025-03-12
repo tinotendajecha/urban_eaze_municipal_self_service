@@ -1,5 +1,7 @@
 "use client";
 
+import { exportToPDF, exportToExcel } from "@/lib/export-utils";
+import { Download, FileSpreadsheet, FileText } from "lucide-react";
 import { useState } from "react";
 import { 
   Search,
@@ -19,7 +21,7 @@ import {
 import Link from "next/link";
 
 // This will be replaced with actual data from your auth system
-const user_role = 'MUNICIPAL_STAFF';
+const user_role = "MUNICIPAL_STAFF";
 
 interface TicketComment {
   id: string;
@@ -34,8 +36,8 @@ interface Ticket {
   id: string;
   subject: string;
   description: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  priority: "low" | "medium" | "high" | "urgent";
+  status: "open" | "in_progress" | "resolved" | "closed";
   category: string;
   location: string;
   assignedTo: string;
@@ -47,65 +49,65 @@ interface Ticket {
 
 const mockTickets: Ticket[] = [
   {
-    id: 'TKT-001',
-    subject: 'Broken Street Light',
-    description: 'Street light on Oak Avenue has been out for 3 days',
-    priority: 'medium',
-    status: 'open',
-    category: 'Infrastructure',
-    location: 'Oak Avenue & 5th Street',
-    assignedTo: 'Jane Smith',
-    reportedBy: 'John Resident',
-    dateReported: '2025-03-20T10:30:00Z',
-    lastUpdated: '2025-03-20T10:30:00Z',
+    id: "TKT-001",
+    subject: "Broken Street Light",
+    description: "Street light on Oak Avenue has been out for 3 days",
+    priority: "medium",
+    status: "open",
+    category: "Infrastructure",
+    location: "Oak Avenue & 5th Street",
+    assignedTo: "Jane Smith",
+    reportedBy: "John Resident",
+    dateReported: "2025-03-20T10:30:00Z",
+    lastUpdated: "2025-03-20T10:30:00Z",
     comments: [
       {
-        id: 'CMT-001',
-        ticketId: 'TKT-001',
-        author: 'Jane Smith',
-        content: 'Scheduled inspection for tomorrow morning',
-        timestamp: '2025-03-20T14:30:00Z',
-        isInternal: true
-      }
-    ]
+        id: "CMT-001",
+        ticketId: "TKT-001",
+        author: "Jane Smith",
+        content: "Scheduled inspection for tomorrow morning",
+        timestamp: "2025-03-20T14:30:00Z",
+        isInternal: true,
+      },
+    ],
   },
   {
-    id: 'TKT-002',
-    subject: 'Pothole Repair Needed',
-    description: 'Large pothole causing traffic hazard',
-    priority: 'high',
-    status: 'in_progress',
-    category: 'Roads',
-    location: 'Main Street near City Hall',
-    assignedTo: 'Mike Tech',
-    reportedBy: 'Sarah Citizen',
-    dateReported: '2025-03-19T15:45:00Z',
-    lastUpdated: '2025-03-20T09:15:00Z',
+    id: "TKT-002",
+    subject: "Pothole Repair Needed",
+    description: "Large pothole causing traffic hazard",
+    priority: "high",
+    status: "in_progress",
+    category: "Roads",
+    location: "Main Street near City Hall",
+    assignedTo: "Mike Tech",
+    reportedBy: "Sarah Citizen",
+    dateReported: "2025-03-19T15:45:00Z",
+    lastUpdated: "2025-03-20T09:15:00Z",
     comments: [
       {
-        id: 'CMT-002',
-        ticketId: 'TKT-002',
-        author: 'Mike Tech',
-        content: 'Road crew dispatched',
-        timestamp: '2025-03-20T09:15:00Z',
-        isInternal: false
-      }
-    ]
-  }
+        id: "CMT-002",
+        ticketId: "TKT-002",
+        author: "Mike Tech",
+        content: "Road crew dispatched",
+        timestamp: "2025-03-20T09:15:00Z",
+        isInternal: false,
+      },
+    ],
+  },
 ];
 
 const priorityColors = {
-  low: 'bg-blue-100 text-blue-800',
-  medium: 'bg-yellow-100 text-yellow-800',
-  high: 'bg-orange-100 text-orange-800',
-  urgent: 'bg-red-100 text-red-800'
+  low: "bg-blue-100 text-blue-800",
+  medium: "bg-yellow-100 text-yellow-800",
+  high: "bg-orange-100 text-orange-800",
+  urgent: "bg-red-100 text-red-800",
 };
 
 const statusColors = {
-  open: 'bg-purple-100 text-purple-800',
-  in_progress: 'bg-blue-100 text-blue-800',
-  resolved: 'bg-green-100 text-green-800',
-  closed: 'bg-gray-100 text-gray-800'
+  open: "bg-purple-100 text-purple-800",
+  in_progress: "bg-blue-100 text-blue-800",
+  resolved: "bg-green-100 text-green-800",
+  closed: "bg-gray-100 text-gray-800",
 };
 
 export default function TicketManagementPage() {
@@ -116,7 +118,7 @@ export default function TicketManagementPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
 
-  if (user_role !== 'MUNICIPAL_STAFF') {
+  if (user_role !== "MUNICIPAL_STAFF") {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <Card className="p-6">
@@ -131,36 +133,38 @@ export default function TicketManagementPage() {
 
   const handleSort = (field: keyof Ticket) => {
     if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortField(field);
-      setSortDirection('desc');
+      setSortDirection("desc");
     }
   };
 
   const filteredTickets = tickets
     .filter((ticket) => {
-      const matchesSearch = 
+      const matchesSearch =
         ticket.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
         ticket.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         ticket.location.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter;
-      const matchesPriority = priorityFilter === 'all' || ticket.priority === priorityFilter;
+
+      const matchesStatus =
+        statusFilter === "all" || ticket.status === statusFilter;
+      const matchesPriority =
+        priorityFilter === "all" || ticket.priority === priorityFilter;
 
       return matchesSearch && matchesStatus && matchesPriority;
     })
     .sort((a, b) => {
       const aValue = a[sortField];
       const bValue = b[sortField];
-      const direction = sortDirection === 'asc' ? 1 : -1;
+      const direction = sortDirection === "asc" ? 1 : -1;
       return aValue < bValue ? -direction : direction;
     });
 
   const SortIcon = ({ field }: { field: keyof Ticket }) => (
     <span className="ml-2">
       {sortField === field ? (
-        sortDirection === 'asc' ? (
+        sortDirection === "asc" ? (
           <ChevronUp size={16} />
         ) : (
           <ChevronDown size={16} />
@@ -171,16 +175,47 @@ export default function TicketManagementPage() {
     </span>
   );
 
+  const handleExportPDF = () => {
+    const columns = [
+      "date",
+      "reference",
+      "type",
+      "amount",
+      "method",
+      "status",
+      "description",
+    ];
+    exportToPDF(filteredTickets, "Tickets", columns);
+  };
+
+  const handleExportExcel = () => {
+    exportToExcel(filteredTickets, "Tickets");
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Ticket Management</h1>
+
+        <div className="flex space-x-2">
+          <Button variant="outline" onClick={handleExportExcel}>
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
+            Export Excel
+          </Button>
+          <Button variant="outline" onClick={handleExportPDF}>
+            <FileText className="mr-2 h-4 w-4" />
+            Export PDF
+          </Button>
+        </div>
       </div>
 
       <Card className="p-6">
         <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 mb-6">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Search
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              size={20}
+            />
             <Input
               className="pl-10"
               placeholder="Search tickets..."
@@ -222,7 +257,7 @@ export default function TicketManagementPage() {
               <tr className="border-b">
                 <th
                   className="text-left py-3 px-4 cursor-pointer"
-                  onClick={() => handleSort('id')}
+                  onClick={() => handleSort("id")}
                 >
                   <div className="flex items-center">
                     Ticket ID
@@ -231,7 +266,7 @@ export default function TicketManagementPage() {
                 </th>
                 <th
                   className="text-left py-3 px-4 cursor-pointer"
-                  onClick={() => handleSort('subject')}
+                  onClick={() => handleSort("subject")}
                 >
                   <div className="flex items-center">
                     Subject
@@ -240,7 +275,7 @@ export default function TicketManagementPage() {
                 </th>
                 <th
                   className="text-left py-3 px-4 cursor-pointer"
-                  onClick={() => handleSort('priority')}
+                  onClick={() => handleSort("priority")}
                 >
                   <div className="flex items-center">
                     Priority
@@ -249,7 +284,7 @@ export default function TicketManagementPage() {
                 </th>
                 <th
                   className="text-left py-3 px-4 cursor-pointer"
-                  onClick={() => handleSort('status')}
+                  onClick={() => handleSort("status")}
                 >
                   <div className="flex items-center">
                     Status
@@ -258,7 +293,7 @@ export default function TicketManagementPage() {
                 </th>
                 <th
                   className="text-left py-3 px-4 cursor-pointer"
-                  onClick={() => handleSort('assignedTo')}
+                  onClick={() => handleSort("assignedTo")}
                 >
                   <div className="flex items-center">
                     Assigned To
@@ -267,7 +302,7 @@ export default function TicketManagementPage() {
                 </th>
                 <th
                   className="text-left py-3 px-4 cursor-pointer"
-                  onClick={() => handleSort('dateReported')}
+                  onClick={() => handleSort("dateReported")}
                 >
                   <div className="flex items-center">
                     Date Reported
@@ -297,7 +332,7 @@ export default function TicketManagementPage() {
                         statusColors[ticket.status]
                       }`}
                     >
-                      {ticket.status.replace('_', ' ')}
+                      {ticket.status.replace("_", " ")}
                     </span>
                   </td>
                   <td className="py-3 px-4">{ticket.assignedTo}</td>
