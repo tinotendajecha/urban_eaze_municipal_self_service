@@ -22,6 +22,8 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { Download, FileSpreadsheet, FileText, Filter } from "lucide-react";
+import { exportToPDF, exportToExcel } from "@/lib/export-utils";
 
 const monthlyData = [
   { month: "Jan", revenue: 65000, expenses: 45000, profit: 20000 },
@@ -56,6 +58,8 @@ const stats = [
   { label: "Net Profit YTD", value: "$119,000" },
   { label: "Budget Variance", value: "+5.2%" },
 ];
+
+
 
 export default function FinancialsPage() {
   return (

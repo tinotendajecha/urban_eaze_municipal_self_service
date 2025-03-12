@@ -16,6 +16,8 @@ import {
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { exportToPDF, exportToExcel } from "@/lib/export-utils";
+import { Download, FileSpreadsheet, FileText, Filter } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -233,10 +235,29 @@ export default function ManageUsersPage() {
     </span>
   );
 
+    const handleExportPDF = () => {
+      const columns = ['date', 'reference', 'type', 'amount', 'method', 'status', 'description'];
+      exportToPDF(filteredUsers, 'Users', columns);
+    };
+  
+    const handleExportExcel = () => {
+      exportToExcel(filteredUsers, 'Users');
+    };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Manage Users</h1>
+        <div className="flex space-x-2">
+          <Button variant="outline" onClick={handleExportExcel}>
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
+            Export Excel
+          </Button>
+          <Button variant="outline" onClick={handleExportPDF}>
+            <FileText className="mr-2 h-4 w-4" />
+            Export PDF
+          </Button>
+        </div>
         <Dialog>
           <DialogTrigger asChild>
             <Button>

@@ -20,7 +20,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Download, FileText, Filter } from "lucide-react";
+import { Download, FileSpreadsheet, FileText, Filter } from "lucide-react";
+import { exportToPDF, exportToExcel } from "@/lib/export-utils";
 
 interface Transaction {
   id: string;
@@ -84,14 +85,30 @@ export default function StatementPage() {
 
   const balance = totalCharges - totalPayments;
 
+  const handleExportPDF = () => {
+    const columns = ['date', 'reference', 'type', 'amount', 'method', 'status', 'description'];
+    exportToPDF(filteredTransactions, 'Statement', columns);
+  };
+
+  const handleExportExcel = () => {
+    exportToExcel(filteredTransactions, 'Statement');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Financial Statement</h1>
-        <Button>
-          <Download className="mr-2 h-4 w-4" />
-          Download Statement
-        </Button>
+        
+        <div className="flex space-x-2">
+          <Button variant="outline" onClick={handleExportExcel}>
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
+            Export Excel
+          </Button>
+          <Button variant="outline" onClick={handleExportPDF}>
+            <FileText className="mr-2 h-4 w-4" />
+            Export PDF
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
