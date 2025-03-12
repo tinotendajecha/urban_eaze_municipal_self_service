@@ -1,6 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   LineChart,
   Line,
@@ -23,7 +24,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Download, FileSpreadsheet, FileText, Filter } from "lucide-react";
-import { exportToPDF, exportToExcel } from "@/lib/export-utils";
+import { exportToPDF, exportToExcel } from "@/lib/export-util";
 
 const monthlyData = [
   { month: "Jan", revenue: 65000, expenses: 45000, profit: 20000 },
@@ -59,12 +60,91 @@ const stats = [
   { label: "Budget Variance", value: "+5.2%" },
 ];
 
-
-
 export default function FinancialsPage() {
+  const handleExportPDF = () => {
+    // Format monthly data for PDF
+    const monthlyReportData = monthlyData.map(item => ({
+      Month: item.month,
+      Revenue: `$${item.revenue.toLocaleString()}`,
+      Expenses: `$${item.expenses.toLocaleString()}`,
+      Profit: `$${item.profit.toLocaleString()}`
+    }));
+
+    // Format expense breakdown for PDF
+    const expenseReportData = expenseBreakdown.map(item => ({
+      Category: item.name,
+      Percentage: `${item.value}%`,
+      EstimatedAmount: `$${((item.value / 100) * 277000).toLocaleString()}`
+    }));
+
+    // Format revenue streams for PDF
+    const revenueReportData = revenueStreams.map(item => ({
+      Source: item.name,
+      Percentage: `${item.value}%`,
+      EstimatedAmount: `$${((item.value / 100) * 396000).toLocaleString()}`
+    }));
+
+    // Create combined report
+    const reportData = {
+      summary: stats.map(item => ({
+        Metric: item.label,
+        Value: item.value
+      })),
+      monthlyData: monthlyReportData,
+      expenseBreakdown: expenseReportData,
+      revenueStreams: revenueReportData
+    };
+
+    // Export each section
+    exportToPDF(reportData.summary, 'Financial Summary', ['Metric', 'Value']);
+    exportToPDF(reportData.monthlyData, 'Monthly Financial Data', ['Month', 'Revenue', 'Expenses', 'Profit']);
+    exportToPDF(reportData.expenseBreakdown, 'Expense Breakdown', ['Category', 'Percentage', 'EstimatedAmount']);
+    exportToPDF(reportData.revenueStreams, 'Revenue Streams', ['Source', 'Percentage', 'EstimatedAmount']);
+  };
+
+  const handleExportExcel = () => {
+    // Create workbook with multiple sheets
+    const workbookData = {
+      'Summary': stats.map(item => ({
+        Metric: item.label,
+        Value: item.value
+      })),
+      'Monthly Data': monthlyData.map(item => ({
+        Month: item.month,
+        Revenue: item.revenue,
+        Expenses: item.expenses,
+        Profit: item.profit
+      })),
+      'Expense Breakdown': expenseBreakdown.map(item => ({
+        Category: item.name,
+        Percentage: item.value,
+        EstimatedAmount: (item.value / 100) * 277000
+      })),
+      'Revenue Streams': revenueStreams.map(item => ({
+        Source: item.name,
+        Percentage: item.value,
+        EstimatedAmount: (item.value / 100) * 396000
+      }))
+    };
+
+    exportToExcel(workbookData, 'Municipal Financials Report');
+  };
+
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Municipal Financials</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold tracking-tight">Municipal Financials</h1>
+        <div className="flex space-x-2">
+          <Button variant="outline" onClick={handleExportExcel}>
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
+            Export Excel
+          </Button>
+          <Button variant="outline" onClick={handleExportPDF}>
+            <FileText className="mr-2 h-4 w-4" />
+            Export PDF
+          </Button>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
