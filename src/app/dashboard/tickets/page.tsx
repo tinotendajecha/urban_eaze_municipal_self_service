@@ -2,41 +2,13 @@
 
 import { useState } from "react";
 import { 
-  Ticket,
   Search,
-  Filter,
-  MessageSquare,
-  Clock,
-  AlertCircle,
-  CheckCircle,
-  XCircle,
   ChevronUp,
-  ChevronDown,
-  MoreHorizontal,
-  User,
-  Calendar,
-  Tag
+  ChevronDown
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -44,13 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"; // Ensure this module exists or remove if not needed
+import Link from "next/link";
 
 // This will be replaced with actual data from your auth system
 const user_role = 'MUNICIPAL_STAFF';
@@ -142,149 +108,11 @@ const statusColors = {
   closed: 'bg-gray-100 text-gray-800'
 };
 
-interface TicketDetailsProps {
-  ticket: Ticket;
-  onUpdate: (updatedTicket: Ticket) => void;
-}
-
-const TicketDetails = ({ ticket, onUpdate }: TicketDetailsProps) => {
-  const [newComment, setNewComment] = useState('');
-  const [isInternal, setIsInternal] = useState(false);
-
-  const handleStatusChange = (newStatus: string) => {
-    onUpdate({
-      ...ticket,
-      status: newStatus as Ticket['status'],
-      lastUpdated: new Date().toISOString()
-    });
-  };
-
-  const handleAssigneeChange = (newAssignee: string) => {
-    onUpdate({
-      ...ticket,
-      assignedTo: newAssignee,
-      lastUpdated: new Date().toISOString()
-    });
-  };
-
-  const handleAddComment = () => {
-    if (!newComment.trim()) return;
-
-    const comment: TicketComment = {
-      id: `CMT-${Math.random().toString(36).substr(2, 9)}`,
-      ticketId: ticket.id,
-      author: 'Current User', // Replace with actual user name
-      content: newComment,
-      timestamp: new Date().toISOString(),
-      isInternal
-    };
-
-    onUpdate({
-      ...ticket,
-      comments: [...ticket.comments, comment],
-      lastUpdated: new Date().toISOString()
-    });
-
-    setNewComment('');
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label>Status</Label>
-          <Select
-            value={ticket.status}
-            onValueChange={handleStatusChange}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="open">Open</SelectItem>
-              <SelectItem value="in_progress">In Progress</SelectItem>
-              <SelectItem value="resolved">Resolved</SelectItem>
-              <SelectItem value="closed">Closed</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label>Assigned To</Label>
-          <Select
-            value={ticket.assignedTo}
-            onValueChange={handleAssigneeChange}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Jane Smith">Jane Smith</SelectItem>
-              <SelectItem value="Mike Tech">Mike Tech</SelectItem>
-              <SelectItem value="Sarah Handler">Sarah Handler</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Description</Label>
-        <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-md">
-          {ticket.description}
-        </p>
-      </div>
-
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label>Comments</Label>
-          <div className="flex items-center space-x-2">
-            <Label className="text-sm">Internal Only</Label>
-            <input
-              type="checkbox"
-              checked={isInternal}
-              onChange={(e) => setIsInternal(e.target.checked)}
-              className="rounded border-gray-300"
-            />
-          </div>
-        </div>
-        <div className="space-y-4">
-          {ticket.comments.map((comment) => (
-            <div
-              key={comment.id}
-              className={`p-3 rounded-md ${
-                comment.isInternal ? 'bg-yellow-50' : 'bg-gray-50'
-              }`}
-            >
-              <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
-                <span>{comment.author}</span>
-                <span>{new Date(comment.timestamp).toLocaleString()}</span>
-              </div>
-              <p className="text-sm">{comment.content}</p>
-              {comment.isInternal && (
-                <Badge variant="outline" className="mt-2">Internal Note</Badge>
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="flex space-x-2">
-          <Textarea
-            value={newComment}
-            onChange={(e:any) => setNewComment(e.target.value)}
-            placeholder="Add a comment..."
-            className="flex-1"
-          />
-          <Button onClick={handleAddComment}>Add</Button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export default function TicketManagementPage() {
-  const [tickets, setTickets] = useState<Ticket[]>(mockTickets);
+  const [tickets] = useState<Ticket[]>(mockTickets);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<keyof Ticket>('dateReported');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
 
@@ -328,13 +156,6 @@ export default function TicketManagementPage() {
       const direction = sortDirection === 'asc' ? 1 : -1;
       return aValue < bValue ? -direction : direction;
     });
-
-  const handleUpdateTicket = (updatedTicket: Ticket) => {
-    setTickets(tickets.map((ticket) =>
-      ticket.id === updatedTicket.id ? updatedTicket : ticket
-    ));
-    setSelectedTicket(updatedTicket);
-  };
 
   const SortIcon = ({ field }: { field: keyof Ticket }) => (
     <span className="ml-2">
@@ -484,30 +305,11 @@ export default function TicketManagementPage() {
                     {new Date(ticket.dateReported).toLocaleDateString()}
                   </td>
                   <td className="py-3 px-4 text-right">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          View Details
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle className="flex items-center space-x-2">
-                            <span>{ticket.id}</span>
-                            <span className="text-gray-400">|</span>
-                            <span>{ticket.subject}</span>
-                          </DialogTitle>
-                          <DialogDescription>
-                            Reported by {ticket.reportedBy} on{' '}
-                            {new Date(ticket.dateReported).toLocaleDateString()}
-                          </DialogDescription>
-                        </DialogHeader>
-                        <TicketDetails
-                          ticket={ticket}
-                          onUpdate={handleUpdateTicket}
-                        />
-                      </DialogContent>
-                    </Dialog>
+                    <Link href={`/dashboard/tickets/manage/${ticket.id}`}>
+                      <Button variant="ghost" size="sm">
+                        View Details
+                      </Button>
+                    </Link>
                   </td>
                 </tr>
               ))}
