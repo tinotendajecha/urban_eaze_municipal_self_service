@@ -6,7 +6,7 @@ import {
   Menu, X, Bell, Search, Sun, Moon, ChevronDown,
   LayoutDashboard
 } from 'lucide-react';
-import { useTheme } from '../hooks/useTheme';
+// import { useTheme } from '../hooks/useTheme';
 
 interface NavItem {
   icon: React.ReactNode;
@@ -17,7 +17,7 @@ interface NavItem {
 
 const navigation: NavItem[] = [
     { icon: <LayoutDashboard size={20} />, label: 'Dashboard', href: '/dashboard/', adminOnly: true }  ,
-  { icon: <Users size={20} />, label: 'Manage Users', href: '/dashboard/users', adminOnly: true },
+  { icon: <Users size={20} />, label: 'Manage Users', href: '/dashboard/manage-users', adminOnly: true },
   { icon: <Ticket size={20} />, label: 'Manage Tickets', href: '/dashboard/tickets', adminOnly: true },
   { icon: <Receipt size={20} />, label: 'Bill Residents', href: '/dashboard/billing', adminOnly: true },
   { icon: <PieChart size={20} />, label: 'Municipal Financials', href: '/dashboard/financials', adminOnly: true },
@@ -38,7 +38,7 @@ export default function Layout({ children }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const { isDark, toggleTheme } = useTheme();
+//   const { isDark, toggleTheme } = useTheme();
   
   // Mock user data - replace with actual user data in production
   const user = {
@@ -65,7 +65,7 @@ export default function Layout({ children }: LayoutProps) {
             </span>
             <button
               onClick={toggleSidebar}
-              className="lg:hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              className="lg:hidden text-gray-500 hover:text-gray-700 dark:text-white dark:hover:text-gray-200"
             >
               <X size={20} />
             </button>
@@ -77,7 +77,7 @@ export default function Layout({ children }: LayoutProps) {
                 <a
                   key={item.href}
                   href={item.href}
-                  className="flex items-center px-3 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                  className="flex items-center px-3 py-2 text-gray-700 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
                 >
                   <span className="text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400">
                     {item.icon}
@@ -89,9 +89,9 @@ export default function Layout({ children }: LayoutProps) {
             
             <button
               onClick={() => {/* Handle logout */}}
-              className="flex w-full items-center px-3 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
+              className="flex w-full items-center px-3 py-2 text-gray-700 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group"
             >
-              <span className="text-gray-500 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400">
+              <span className="text-gray-500 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400">
                 <LogOut size={20} />
               </span>
               <span className="ml-3">Logout</span>
@@ -108,7 +108,7 @@ export default function Layout({ children }: LayoutProps) {
             <div className="flex items-center">
               <button
                 onClick={toggleSidebar}
-                className="lg:hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 mr-4"
+                className="lg:hidden text-gray-500 hover:text-gray-700 dark:text-white dark:hover:text-gray-200 mr-4"
               >
                 <Menu size={24} />
               </button>
@@ -128,18 +128,18 @@ export default function Layout({ children }: LayoutProps) {
 
             <div className="flex items-center space-x-4">
               {/* Theme Toggle */}
-              <button
+              {/* <button
                 onClick={toggleTheme}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                className="text-gray-500 hover:text-gray-700 dark:text-white dark:hover:text-gray-200"
               >
                 {isDark ? <Sun size={20} /> : <Moon size={20} />}
-              </button>
+              </button> */}
 
               {/* Notifications */}
               <div className="relative">
                 <button
                   onClick={() => setNotificationsOpen(!notificationsOpen)}
-                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  className="text-gray-500 hover:text-gray-700 dark:text-white dark:hover:text-gray-200"
                 >
                   <Bell size={20} />
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
@@ -159,7 +159,7 @@ export default function Layout({ children }: LayoutProps) {
                     alt={user.name}
                     className="w-8 h-8 rounded-full"
                   />
-                  <span className="hidden md:block text-sm text-gray-700 dark:text-gray-200">
+                  <span className="hidden md:block text-sm text-gray-700 dark:text-white">
                     {user.name}
                   </span>
                   <ChevronDown size={16} className="text-gray-500" />
