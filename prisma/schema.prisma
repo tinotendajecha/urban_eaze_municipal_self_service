@@ -22,59 +22,75 @@ model User {
   role      Role
   createdAt DateTime @default(now())
 
-  bills          Bill[]
-  payments       Payment[]
+  bills           Bill[]
+  payments        Payment[]
   serviceRequests ServiceRequest[]
-  notifications  Notification[]
+  notifications   Notification[]
 
   AdminLog AdminLog[]
+  Permits  Permits[]
 }
 
 model Bill {
-  id        String   @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id])
+  id        String     @id @default(uuid())
+  user      User       @relation(fields: [userId], references: [id])
   userId    String
   billType  BillType
   amount    Decimal
   status    BillStatus @default(PENDING)
   dueDate   DateTime
-  createdAt DateTime @default(now())
+  createdAt DateTime   @default(now())
 
   payments Payment[]
 }
 
 model Payment {
-  id            String   @id @default(uuid())
-  user          User     @relation(fields: [userId], references: [id])
+  id            String        @id @default(uuid())
+  user          User          @relation(fields: [userId], references: [id])
   userId        String
-  bill          Bill     @relation(fields: [billId], references: [id])
+  bill          Bill          @relation(fields: [billId], references: [id])
   billId        String
   amountPaid    Decimal
   paymentMethod PaymentMethod
   status        PaymentStatus @default(PENDING)
-  transactionId String   @unique
-  createdAt     DateTime @default(now())
+  transactionId String        @unique
+  createdAt     DateTime      @default(now())
 }
 
 model ServiceRequest {
-  id          String   @id @default(uuid())
-  user        User     @relation(fields: [userId], references: [id])
+  id          String          @id @default(uuid())
+  user        User            @relation(fields: [userId], references: [id])
   userId      String
   category    ServiceCategory
   description String
-  status      RequestStatus @default(PENDING)
-  assignedTo  String?  // Municipal staff ID (optional, nullable)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  status      RequestStatus   @default(PENDING)
+  assignedTo  String? // Municipal staff ID (optional, nullable)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model ServiceSchedule{
+  id String @id @default(uuid())
+  Service String
+  Date_Time DateTime
+  Location String
+  Frequency String
+  Status ServiceScheduleStatus
+  description String
+}
+
+enum ServiceScheduleStatus {
+  SCHEDULED
+  NOT_SCHEDULED
 }
 
 model Notification {
-  id        String   @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id])
+  id        String             @id @default(uuid())
+  user      User               @relation(fields: [userId], references: [id])
   userId    String
   message   String
   status    NotificationStatus @default(UNREAD)
-  createdAt DateTime @default(now())
+  createdAt DateTime           @default(now())
 }
 
 model AdminLog {
@@ -83,6 +99,31 @@ model AdminLog {
   adminId   String
   action    String
   createdAt DateTime @default(now())
+}
+
+model Permits {
+  id             String       @id @default(uuid())
+  user           User         @relation(fields: [userId], references: [id])
+  userId         String
+  permitType     PermitType
+  description    String
+  location       String
+  submissionDate DateTime
+  status         PermitStatus @default(PENDING)
+  createdAt      DateTime     @default(now())
+}
+
+enum PermitStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum PermitType {
+  BUILDING
+  BUSINESS
+  EVENT
 }
 
 enum Role {
@@ -130,4 +171,3 @@ enum NotificationStatus {
   UNREAD
   READ
 }
-

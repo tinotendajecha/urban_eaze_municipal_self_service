@@ -27,7 +27,7 @@ const navigation: NavItem[] = [
   { icon: <Stamp size={20} />, label: 'Apply for Permits', href: '/dashboard/permits' },
   { icon: <Calendar size={20} />, label: 'Service Schedules', href: '/dashboard/schedules' },
   { icon: <History size={20} />, label: 'Payment History', href: '/dashboard/history' },
-  { icon: <Settings size={20} />, label: 'Account Settings', href: '/dashboard/settings' },
+  // { icon: <Settings size={20} />, label: 'Account Settings', href: '/dashboard/settings' },
 ];
 
 interface LayoutProps {
