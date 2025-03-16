@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, Shield } from 'lucide-react';
+import { signIn } from "next-auth/react";
 
 export interface LoginFormData {
   email: string;
@@ -14,8 +15,20 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      console.log(result.error);
+    } else {
+      window.location.href = "/dashboard";
+    }
   };
 
   return (

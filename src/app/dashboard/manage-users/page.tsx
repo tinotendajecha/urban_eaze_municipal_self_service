@@ -41,6 +41,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import Link from "next/link";
 
 // This will be replaced with actual data from your auth system
 const user_role = 'ADMIN';
@@ -258,23 +259,10 @@ export default function ManageUsersPage() {
             Export PDF
           </Button>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
+            <Link href={'/auth/new-user'} className="flex align-middle items-center">
               <Plus className="mr-2 h-4 w-4" />
               Add User
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New User</DialogTitle>
-              <DialogDescription>
-                Add a new user to the system. They will receive an email with login instructions.
-              </DialogDescription>
-            </DialogHeader>
-            <UserForm onSubmit={handleCreateUser} />
-          </DialogContent>
-        </Dialog>
+            </Link>
       </div>
 
       <Card className="p-6">
