@@ -7,18 +7,15 @@ export interface LoginFormData {
   password: string;
 }
 
-interface LoginPageProps {
-  onLogin?: (data: LoginFormData) => void;
-}
 
-export default function LoginPage({ onLogin }: LoginPageProps) {
+
+export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin?.({ email, password });
   };
 
   return (

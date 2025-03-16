@@ -34,10 +34,10 @@ export const exportToExcel = (data: any, title: string) => {
   
   // If data is an object with multiple sheets
   if (typeof data === 'object' && !Array.isArray(data)) {
-    Object.entries(data).forEach(([sheetName, sheetData]) => {
-      const ws = XLSX.utils.json_to_sheet(sheetData);
-      XLSX.utils.book_append_sheet(wb, ws, sheetName);
-    });
+    // Object.entries(data).forEach(([sheetName, sheetData]) => {
+    //   const ws = XLSX.utils.json_to_sheet(sheetData);
+    //   XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    // });
   } else {
     // Single sheet
     const ws = XLSX.utils.json_to_sheet(data);
