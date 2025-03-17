@@ -63,7 +63,7 @@ export default function AdminUserCreation() {
             </div>
             <div>
               <Link
-                href={"/auth/new-user"}
+                href={"/dashboard"}
                 className="flex align-middle items-center"
               >
                 <HomeIcon className="mr-2 h-4 w-4" />
