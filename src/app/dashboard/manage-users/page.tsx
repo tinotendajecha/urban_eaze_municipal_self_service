@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { 
   Users, 
   Search, 
@@ -51,36 +51,8 @@ interface User {
   name: string;
   email: string;
   role: 'ADMIN' | 'MUNICIPAL_STAFF' | 'RESIDENT';
-  status: 'active' | 'inactive';
-  lastActive: string;
+  phone: string;
 }
-
-const mockUsers: User[] = [
-  {
-    id: '1',
-    name: 'John Doe',
-    email: 'john@example.com',
-    role: 'ADMIN',
-    status: 'active',
-    lastActive: '2025-03-20T10:30:00Z',
-  },
-  {
-    id: '2',
-    name: 'Jane Smith',
-    email: 'jane@example.com',
-    role: 'MUNICIPAL_STAFF',
-    status: 'active',
-    lastActive: '2025-03-19T15:45:00Z',
-  },
-  {
-    id: '3',
-    name: 'Bob Wilson',
-    email: 'bob@example.com',
-    role: 'RESIDENT',
-    status: 'inactive',
-    lastActive: '2025-03-15T09:20:00Z',
-  },
-];
 
 interface UserFormData {
   name: string;
@@ -146,7 +118,22 @@ const UserForm = ({ onSubmit, initialData }: {
 };
 
 export default function ManageUsersPage() {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+
+  useEffect(() => {
+    async function fetchUsers(){
+      const response = await fetch('/api/users/all')
+
+      if (response.ok) {
+        const data = await response.json()
+        setUsers(data.users)
+        // console.log(data)
+      }
+    }
+
+    fetchUsers()
+  }, [])
+
+  const [users, setUsers] = useState<User[]>();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<keyof User>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
@@ -174,52 +161,50 @@ export default function ManageUsersPage() {
     }
   };
 
-  const sortedUsers = [...users].sort((a, b) => {
-    const aValue = a[sortField];
-    const bValue = b[sortField];
-    const direction = sortDirection === 'asc' ? 1 : -1;
-    return aValue < bValue ? -direction : direction;
-  });
+  // const sortedUsers = [...users].sort((a, b) => {
+  //   const aValue = a[sortField];
+  //   const bValue = b[sortField];
+  //   const direction = sortDirection === 'asc' ? 1 : -1;
+  //   return aValue < bValue ? -direction : direction;
+  // });
 
-  const filteredUsers = sortedUsers.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filteredUsers = sortedUsers.filter(
+  //   (user) =>
+  //     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
   const handleCreateUser = (data: UserFormData) => {
-    const newUser: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      ...data,
-      status: 'active',
-      lastActive: new Date().toISOString(),
-    };
-    setUsers([...users, newUser]);
+    // const newUser: User = {
+    //   id: Math.random().toString(36).substr(2, 9),
+    //   ...data,
+    // };
+    // setUsers([...users, newUser]);
   };
 
   const handleUpdateUser = (data: UserFormData) => {
-    if (!selectedUser) return;
-    const updatedUsers = users.map((user) =>
-      user.id === selectedUser.id
-        ? { ...user, ...data }
-        : user
-    );
-    setUsers(updatedUsers);
-    setSelectedUser(null);
+    // if (!selectedUser) return;
+    // const updatedUsers = users.map((user) =>
+    //   user.id === selectedUser.id
+    //     ? { ...user, ...data }
+    //     : user
+    // );
+    // setUsers(updatedUsers);
+    // setSelectedUser(null);
   };
 
   const handleDeleteUser = (userId: string) => {
-    setUsers(users.filter((user) => user.id !== userId));
+    // setUsers(users.filter((user) => user.id !== userId));
   };
 
   const handleToggleStatus = (userId: string) => {
-    setUsers(
-      users.map((user) =>
-        user.id === userId
-          ? { ...user, status: user.status === 'active' ? 'inactive' : 'active' }
-          : user
-      )
-    );
+    // setUsers(
+    //   users.map((user) =>
+    //     user.id === userId
+    //       ? { ...user, status: user.status === 'active' ? 'inactive' : 'active' }
+    //       : user
+    //   )
+    // );
   };
 
   const SortIcon = ({ field }: { field: keyof User }) => (
@@ -238,11 +223,11 @@ export default function ManageUsersPage() {
 
     const handleExportPDF = () => {
       const columns = ['date', 'reference', 'type', 'amount', 'method', 'status', 'description'];
-      exportToPDF(filteredUsers, 'Users', columns);
+      // exportToPDF(users, 'Users', columns);
     };
   
     const handleExportExcel = () => {
-      exportToExcel(filteredUsers, 'Users');
+      // exportToExcel(filteredUsers, 'Users');
     };
 
   return (
@@ -311,27 +296,18 @@ export default function ManageUsersPage() {
                 </th>
                 <th
                   className="text-left py-3 px-4 cursor-pointer"
-                  onClick={() => handleSort('status')}
+                  onClick={() => handleSort('phone')}
                 >
                   <div className="flex items-center">
-                    Status
-                    <SortIcon field="status" />
-                  </div>
-                </th>
-                <th
-                  className="text-left py-3 px-4 cursor-pointer"
-                  onClick={() => handleSort('lastActive')}
-                >
-                  <div className="flex items-center">
-                    Last Active
-                    <SortIcon field="lastActive" />
+                    Phone
+                    <SortIcon field="phone" />
                   </div>
                 </th>
                 <th className="text-right py-3 px-4">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((user) => (
+              {users && users.map((user) => (
                 <tr key={user.id} className="border-b">
                   <td className="py-3 px-4">{user.name}</td>
                   <td className="py-3 px-4">{user.email}</td>
@@ -340,20 +316,7 @@ export default function ManageUsersPage() {
                       {user.role.replace('_', ' ')}
                     </span>
                   </td>
-                  <td className="py-3 px-4">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        user.status === 'active'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      {user.status}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    {new Date(user.lastActive).toLocaleDateString()}
-                  </td>
+                  <td className="py-3 px-4">{user.phone}</td>
                   <td className="py-3 px-4 text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -386,7 +349,7 @@ export default function ManageUsersPage() {
                             />
                           </DialogContent>
                         </Dialog>
-                        <DropdownMenuItem onClick={() => handleToggleStatus(user.id)}>
+                        {/* <DropdownMenuItem onClick={() => handleToggleStatus(user.id)}>
                           {user.status === 'active' ? (
                             <>
                               <XCircle className="mr-2 h-4 w-4" />
@@ -398,7 +361,7 @@ export default function ManageUsersPage() {
                               Activate
                             </>
                           )}
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                         <DropdownMenuItem
                           className="text-red-600"
                           onClick={() => handleDeleteUser(user.id)}

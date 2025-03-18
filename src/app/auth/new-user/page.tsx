@@ -17,24 +17,45 @@ import {
   HomeIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export default function AdminUserCreation() {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter()
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     password: "",
-    role: "USER",
-    department: "",
-    location: "",
-    employeeId: "",
-    accessLevel: "STANDARD",
+    role: "RESIDENT",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+
+    console.log(formData)
+    
+    const response = await fetch('/api/users/add', {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData)
+    })
+
+    const data = await response.json();
+
+    if(response.status != 201){
+      toast.error("Something went wrong!")      
+      return
+    }
+
+    toast.success('User succesfully added 🙂')
+
+    // push to dashboard
+    router.push('/dashboard/manage-users')
+
   };
 
   const handleChange = (
@@ -298,6 +319,7 @@ export default function AdminUserCreation() {
                         name="role"
                         value={formData.role}
                         onChange={handleChange}
+                        defaultValue='RESIDENT'
                         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
                         required
                       >
