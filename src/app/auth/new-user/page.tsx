@@ -17,24 +17,45 @@ import {
   HomeIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export default function AdminUserCreation() {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter()
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     password: "",
-    role: "USER",
-    department: "",
-    location: "",
-    employeeId: "",
-    accessLevel: "STANDARD",
+    role: "RESIDENT",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+
+    console.log(formData)
+    
+    const response = await fetch('/api/users/add', {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData)
+    })
+
+    const data = await response.json();
+
+    if(response.status != 201){
+      toast.error("Something went wrong!")      
+      return
+    }
+
+    toast.success('User succesfully added 🙂')
+
+    // push to dashboard
+    router.push('/dashboard/manage-users')
+
   };
 
   const handleChange = (
@@ -208,12 +229,12 @@ export default function AdminUserCreation() {
               {/* Right Column */}
               <div className="space-y-6">
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="text-sm font-medium text-gray-900 mb-4">
+                  {/* <h3 className="text-sm font-medium text-gray-900 mb-4">
                     Organizational Details
-                  </h3>
+                  </h3> */}
 
                   {/* Employee ID */}
-                  <div>
+                  {/* <div>
                     <label
                       htmlFor="employeeId"
                       className="block text-sm font-medium text-gray-700 mb-1"
@@ -232,10 +253,10 @@ export default function AdminUserCreation() {
                         required
                       />
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Department Field */}
-                  <div className="mt-4">
+                  {/* <div className="mt-4">
                     <label
                       htmlFor="department"
                       className="block text-sm font-medium text-gray-700 mb-1"
@@ -254,10 +275,10 @@ export default function AdminUserCreation() {
                         required
                       />
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Location Field */}
-                  <div className="mt-4">
+                  {/* <div className="mt-4">
                     <label
                       htmlFor="location"
                       className="block text-sm font-medium text-gray-700 mb-1"
@@ -275,7 +296,7 @@ export default function AdminUserCreation() {
                         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
-                  </div>
+                  </div> */}
                 </div>
 
                 <div className="bg-gray-50 p-4 rounded-lg">
@@ -298,19 +319,20 @@ export default function AdminUserCreation() {
                         name="role"
                         value={formData.role}
                         onChange={handleChange}
+                        defaultValue='RESIDENT'
                         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
                         required
                       >
-                        <option value="USER">Standard User</option>
-                        <option value="MANAGER">Department Manager</option>
-                        <option value="ADMIN">System Administrator</option>
-                        <option value="SUPER_ADMIN">Super Administrator</option>
+                        <option value="RESIDENT">Resident</option>
+                        <option value="MUNICIPAL_STAFF">Municipal Stuff</option>
+                        <option value="ADMIN">Admin</option>
+                        {/* <option value="SUPER_ADMIN">Super Administrator</option> */}
                       </select>
                     </div>
                   </div>
 
                   {/* Access Level */}
-                  <div className="mt-4">
+                  {/* <div className="mt-4">
                     <label
                       htmlFor="accessLevel"
                       className="block text-sm font-medium text-gray-700 mb-1"
@@ -333,7 +355,7 @@ export default function AdminUserCreation() {
                         <option value="FULL">Full Access</option>
                       </select>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
