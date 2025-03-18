@@ -3,7 +3,7 @@ import prisma from "@/utils/dbconfig";
 
 async function main() {
   const adminEmail = 'admin@urbanease.com';
-  const adminPassword = 'password123'; // Change this to a strong password
+  const adminPassword = 'password123'; 
 
   // Hash the password
   const hashedPassword = await bcrypt.hash(adminPassword, 10);
@@ -11,7 +11,7 @@ async function main() {
   // Upsert the admin user to ensure idempotency
   await prisma.user.upsert({
     where: { email: adminEmail },
-    update: {}, // If the user already exists, no changes will be made
+    update: {},
     create: {
       name: 'Admin',
       email: adminEmail,
