@@ -1,10 +1,8 @@
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-
-const prisma = new PrismaClient();
+import prisma from "@/utils/dbconfig";
 
 async function main() {
-  const adminEmail = 'admin@ac.com';
+  const adminEmail = 'admin@urbanease.com';
   const adminPassword = 'password123'; // Change this to a strong password
 
   // Hash the password
@@ -17,8 +15,9 @@ async function main() {
     create: {
       name: 'Admin',
       email: adminEmail,
-      password: hashedPassword, // Store the hashed password
-      role: 'ADMIN', // Adjust the role or fields as needed
+      password: hashedPassword, 
+      role: 'ADMIN',
+      phone: '0774567890'
     },
   });
 

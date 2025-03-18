@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build && prisma migrate deploy && node prisma/seed.ts",
+    "build": "prisma generate && next build && prisma migrate deploy && tsx src/data/seeders/db.seed.ts",
+    "db:seed": "tsx src/data/seeders/db.seed.ts",
     "start": "next start",
     "lint": "next lint"
   },
@@ -63,7 +64,8 @@
     "node-loader": "^2.1.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "tsx": "^4.19.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
     "typescript": "^5.7.3"
   }
 }
