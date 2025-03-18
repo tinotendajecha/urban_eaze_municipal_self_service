@@ -101,7 +101,7 @@ const UserForm = ({ onSubmit, initialData }: {
           <SelectTrigger>
             <SelectValue placeholder="Select a role" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-gray-300">
             <SelectItem value="ADMIN">Administrator</SelectItem>
             <SelectItem value="MUNICIPAL_STAFF">Municipal Staff</SelectItem>
             <SelectItem value="RESIDENT">Resident</SelectItem>

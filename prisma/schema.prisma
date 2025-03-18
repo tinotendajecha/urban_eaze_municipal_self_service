@@ -17,7 +17,7 @@ model User {
   id        String   @id @default(uuid())
   name      String?
   email     String?  @unique
-  phone     String? 
+  phone     String?
   password  String?
   role      String?
   createdAt DateTime @default(now())
@@ -45,41 +45,45 @@ model Bill {
 }
 
 model Payment {
-  id            String        @id @default(uuid())
-  user          User          @relation(fields: [userId], references: [id])
-  userId        String
-  bill          Bill          @relation(fields: [billId], references: [id])
-  billId        String
-  amountPaid    Decimal
-  paymentMethod PaymentMethod
-  status        PaymentStatus @default(PENDING)
-  transactionId String        @unique
-  createdAt     DateTime      @default(now())
+  id              String        @id @default(uuid())
+  user            User?          @relation(fields: [account], references: [id])
+  account         String
+  amountPaid      Decimal
+  paymentMethod   PaymentMethod
+  transactionCode Int
+  transactionId String
+  description     String?
+  payment_for     String        @db.VarChar(255)
+  status          String
+  reference       String        @unique
+  createdAt       DateTime      @default(now())
+  Bill            Bill?         @relation(fields: [billId], references: [id])
+  billId          String?
 }
 
 model Ticket {
-  id          String          @id @default(uuid())
+  id          String        @id @default(uuid())
   ticketId    String        @unique
-  user        User            @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id])
   userId      String
-  type    String
+  type        String
   description String
-  status      RequestStatus   @default(PENDING)
-  priority String
-  location String?
-  comment String?
+  status      RequestStatus @default(PENDING)
+  priority    String
+  location    String?
+  comment     String?
   assignedTo  String? // Municipal staff ID (optional, nullable)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }
 
-model ServiceSchedule{
-  id String @id @default(uuid())
-  Service String
-  Date_Time DateTime
-  Location String
-  Frequency String
-  Status ServiceScheduleStatus
+model ServiceSchedule {
+  id          String                @id @default(uuid())
+  Service     String
+  Date_Time   DateTime
+  Location    String
+  Frequency   String
+  Status      ServiceScheduleStatus
   description String
 }
 

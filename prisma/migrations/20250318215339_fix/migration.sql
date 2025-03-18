@@ -34,11 +34,11 @@ CREATE TYPE "NotificationStatus" AS ENUM ('UNREAD', 'READ');
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "phone" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
-    "role" "Role" NOT NULL,
+    "name" TEXT,
+    "email" TEXT,
+    "phone" TEXT,
+    "password" TEXT,
+    "role" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
@@ -72,17 +72,21 @@ CREATE TABLE "Payment" (
 );
 
 -- CreateTable
-CREATE TABLE "ServiceRequest" (
+CREATE TABLE "Ticket" (
     "id" TEXT NOT NULL,
+    "ticketId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "category" "ServiceCategory" NOT NULL,
+    "type" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "status" "RequestStatus" NOT NULL DEFAULT 'PENDING',
+    "priority" TEXT NOT NULL,
+    "location" TEXT,
+    "comment" TEXT,
     "assignedTo" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "ServiceRequest_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Ticket_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -137,10 +141,10 @@ CREATE TABLE "Permits" (
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_phone_key" ON "User"("phone");
+CREATE UNIQUE INDEX "Payment_transactionId_key" ON "Payment"("transactionId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Payment_transactionId_key" ON "Payment"("transactionId");
+CREATE UNIQUE INDEX "Ticket_ticketId_key" ON "Ticket"("ticketId");
 
 -- AddForeignKey
 ALTER TABLE "Bill" ADD CONSTRAINT "Bill_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -152,7 +156,7 @@ ALTER TABLE "Payment" ADD CONSTRAINT "Payment_userId_fkey" FOREIGN KEY ("userId"
 ALTER TABLE "Payment" ADD CONSTRAINT "Payment_billId_fkey" FOREIGN KEY ("billId") REFERENCES "Bill"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ServiceRequest" ADD CONSTRAINT "ServiceRequest_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Ticket" ADD CONSTRAINT "Ticket_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
