@@ -3,7 +3,7 @@ import prisma from "@/utils/dbconfig";
 export async function GET() {
   try {
     // Fetch all service requests with user details
-    const serviceRequests = await prisma.serviceRequest.findMany({
+    const serviceRequests = await prisma.ticket.findMany({
       include: { user: true },
     });
 

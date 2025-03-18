@@ -24,7 +24,7 @@ model User {
 
   bills           Bill[]
   payments        Payment[]
-  serviceRequests ServiceRequest[]
+  serviceRequests Ticket[]
   notifications   Notification[]
 
   AdminLog AdminLog[]
@@ -57,13 +57,17 @@ model Payment {
   createdAt     DateTime      @default(now())
 }
 
-model ServiceRequest {
+model Ticket {
   id          String          @id @default(uuid())
+  ticketId    String        @unique
   user        User            @relation(fields: [userId], references: [id])
   userId      String
-  category    ServiceCategory
+  type    String
   description String
   status      RequestStatus   @default(PENDING)
+  priority String
+  location String?
+  comment String?
   assignedTo  String? // Municipal staff ID (optional, nullable)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt

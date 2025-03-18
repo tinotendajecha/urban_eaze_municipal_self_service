@@ -2,7 +2,7 @@
 
 import { exportToPDF, exportToExcel } from "@/lib/export-utils";
 import { Download, FileSpreadsheet, FileText } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { 
   Search,
   ChevronUp,
@@ -19,80 +19,54 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 // This will be replaced with actual data from your auth system
 const user_role = "MUNICIPAL_STAFF";
 
-interface TicketComment {
-  id: string;
-  ticketId: string;
-  author: string;
-  content: string;
-  timestamp: string;
-  isInternal: boolean;
-}
-
 interface Ticket {
   id: string;
-  subject: string;
   description: string;
+  ticketId: string;
   priority: "low" | "medium" | "high" | "urgent";
   status: "open" | "in_progress" | "resolved" | "closed";
-  category: string;
+  type: string;
   location: string;
   assignedTo: string;
   reportedBy: string;
   dateReported: string;
   lastUpdated: string;
-  comments: TicketComment[];
+  comments: string;
 }
 
 const mockTickets: Ticket[] = [
   {
     id: "TKT-001",
-    subject: "Broken Street Light",
+    ticketId: "TKT-001",
     description: "Street light on Oak Avenue has been out for 3 days",
     priority: "medium",
     status: "open",
-    category: "Infrastructure",
+    type: "Infrastructure",
     location: "Oak Avenue & 5th Street",
     assignedTo: "Jane Smith",
     reportedBy: "John Resident",
     dateReported: "2025-03-20T10:30:00Z",
     lastUpdated: "2025-03-20T10:30:00Z",
-    comments: [
-      {
-        id: "CMT-001",
-        ticketId: "TKT-001",
-        author: "Jane Smith",
-        content: "Scheduled inspection for tomorrow morning",
-        timestamp: "2025-03-20T14:30:00Z",
-        isInternal: true,
-      },
-    ],
+    comments: ""
   },
   {
     id: "TKT-002",
-    subject: "Pothole Repair Needed",
+    ticketId: "TKT-001",
     description: "Large pothole causing traffic hazard",
     priority: "high",
     status: "in_progress",
-    category: "Roads",
+    type: "Roads",
     location: "Main Street near City Hall",
     assignedTo: "Mike Tech",
     reportedBy: "Sarah Citizen",
     dateReported: "2025-03-19T15:45:00Z",
     lastUpdated: "2025-03-20T09:15:00Z",
-    comments: [
-      {
-        id: "CMT-002",
-        ticketId: "TKT-002",
-        author: "Mike Tech",
-        content: "Road crew dispatched",
-        timestamp: "2025-03-20T09:15:00Z",
-        isInternal: false,
-      },
-    ],
+    comments: ""
   },
 ];
 
@@ -111,7 +85,8 @@ const statusColors = {
 };
 
 export default function TicketManagementPage() {
-  const [tickets] = useState<Ticket[]>(mockTickets);
+  const {data: session} = useSession();
+  const [tickets, setTickets] = useState<Ticket[]>(mockTickets);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<keyof Ticket>('dateReported');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
@@ -131,6 +106,19 @@ export default function TicketManagementPage() {
     );
   }
 
+  useEffect(() => {
+    const fetchTickets = async () => {
+      const response = await fetch("/api/service-requests/all", {
+        method: "GET",
+      });
+      const data = await response.json();
+      setTickets(data.serviceRequests);
+
+      console.log("tickets: ", data.serviceRequests);
+    };
+    fetchTickets();
+  }, []);
+
   const handleSort = (field: keyof Ticket) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -140,26 +128,25 @@ export default function TicketManagementPage() {
     }
   };
 
-  const filteredTickets = tickets
-    .filter((ticket) => {
-      const matchesSearch =
-        ticket.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.location.toLowerCase().includes(searchTerm.toLowerCase());
+  // const filteredTickets = tickets
+  //   .filter((ticket) => {
+  //     const matchesSearch =
+  //       ticket.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       ticket.location.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesStatus =
-        statusFilter === "all" || ticket.status === statusFilter;
-      const matchesPriority =
-        priorityFilter === "all" || ticket.priority === priorityFilter;
+  //     const matchesStatus =
+  //       statusFilter === "all" || ticket.status === statusFilter;
+  //     const matchesPriority =
+  //       priorityFilter === "all" || ticket.priority === priorityFilter;
 
-      return matchesSearch && matchesStatus && matchesPriority;
-    })
-    .sort((a, b) => {
-      const aValue = a[sortField];
-      const bValue = b[sortField];
-      const direction = sortDirection === "asc" ? 1 : -1;
-      return aValue < bValue ? -direction : direction;
-    });
+  //     return matchesSearch && matchesStatus && matchesPriority;
+  //   })
+  //   .sort((a, b) => {
+  //     const aValue = a[sortField];
+  //     const bValue = b[sortField];
+  //     const direction = sortDirection === "asc" ? 1 : -1;
+  //     return aValue < bValue ? -direction : direction;
+  //   });
 
   const SortIcon = ({ field }: { field: keyof Ticket }) => (
     <span className="ml-2">
@@ -185,11 +172,11 @@ export default function TicketManagementPage() {
       "status",
       "description",
     ];
-    exportToPDF(filteredTickets, "Tickets", columns);
+    exportToPDF(tickets, "Tickets", columns);
   };
 
   const handleExportExcel = () => {
-    exportToExcel(filteredTickets, "Tickets");
+    exportToExcel(tickets, "Tickets");
   };
 
   return (
@@ -266,15 +253,6 @@ export default function TicketManagementPage() {
                 </th>
                 <th
                   className="text-left py-3 px-4 cursor-pointer"
-                  onClick={() => handleSort("subject")}
-                >
-                  <div className="flex items-center">
-                    Subject
-                    <SortIcon field="subject" />
-                  </div>
-                </th>
-                <th
-                  className="text-left py-3 px-4 cursor-pointer"
                   onClick={() => handleSort("priority")}
                 >
                   <div className="flex items-center">
@@ -313,10 +291,9 @@ export default function TicketManagementPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredTickets.map((ticket) => (
-                <tr key={ticket.id} className="border-b">
-                  <td className="py-3 px-4">{ticket.id}</td>
-                  <td className="py-3 px-4">{ticket.subject}</td>
+              {tickets && tickets.map((ticket) => (
+                <tr key={ticket.ticketId} className="border-b">
+                  <td className="py-3 px-4">{ticket.ticketId}</td>
                   <td className="py-3 px-4">
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -340,7 +317,7 @@ export default function TicketManagementPage() {
                     {new Date(ticket.dateReported).toLocaleDateString()}
                   </td>
                   <td className="py-3 px-4 text-right">
-                    <Link href={`/dashboard/tickets/manage/${ticket.id}`}>
+                    <Link href={`/dashboard/tickets/manage/${ticket.ticketId}`}>
                       <Button variant="ghost" size="sm">
                         View Details
                       </Button>
