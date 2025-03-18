@@ -292,7 +292,7 @@ export default function TicketManagementPage() {
             </thead>
             <tbody>
               {tickets && tickets.map((ticket) => (
-                <tr key={ticket.ticketId} className="border-b">
+                <tr key={ticket.id} className="border-b">
                   <td className="py-3 px-4">{ticket.ticketId}</td>
                   <td className="py-3 px-4">
                     <span
