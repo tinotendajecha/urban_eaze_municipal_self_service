@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { toast } from "react-toastify";
 
 // This will be replaced with actual data from your auth system
 const user_role = 'ADMIN';
@@ -119,6 +120,8 @@ const UserForm = ({ onSubmit, initialData }: {
 
 export default function ManageUsersPage() {
 
+  const [refresh, setRefresh] = useState<boolean>(false);
+
   useEffect(() => {
     async function fetchUsers(){
       const response = await fetch('/api/users/all')
@@ -131,13 +134,15 @@ export default function ManageUsersPage() {
     }
 
     fetchUsers()
-  }, [])
+  }, [refresh])
 
   const [users, setUsers] = useState<User[]>();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<keyof User>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+ 
 
   if (user_role !== 'ADMIN') {
     return (
@@ -192,9 +197,27 @@ export default function ManageUsersPage() {
     // setUsers(updatedUsers);
     // setSelectedUser(null);
   };
+  
 
-  const handleDeleteUser = (userId: string) => {
-    // setUsers(users.filter((user) => user.id !== userId));
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      const response = await fetch("/api/users/delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: userId }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok){
+        toast.success(data.message)
+      }
+
+      setRefresh(!refresh)
+      
+    } catch (error) {
+      console.error("Request failed:", error);
+    }
   };
 
   const handleToggleStatus = (userId: string) => {
