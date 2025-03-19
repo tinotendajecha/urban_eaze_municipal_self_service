@@ -3,15 +3,15 @@ import { generatePaymentId } from "@/lib/generatePaymentId";
 
 export async function POST(req: Request) {
   try {
-    const { userId, amountPaid, paymentMethod, transactionCode, description, payment_for } =
+    const { userId, amountPaid, paymentMethod, description,standType, payment_for } =
       await req.json();
-
 
     const paymentId = await generatePaymentId();
 
+   
     const find_residents = await prisma.user.findMany({
       where: {
-        role: "RESIDENT",
+        standType: standType,
       },
     });
 
@@ -28,8 +28,8 @@ export async function POST(req: Request) {
       amount = amount + Number(amountPaid);
       const second_leg = {
         reference: `${userId}_${payment_for}_${amountPaid}`,
-        transactionCode: transactionCode == 1 ? -1 : 1,
-        status: "PENDING",
+        transactionCode: -1,
+        status: "DEBITED",
         paymentMethod: paymentMethod,
         amountPaid: amountPaid,
         payment_for: payment_for,
@@ -43,14 +43,14 @@ export async function POST(req: Request) {
 
     const first_leg = {
       reference: `${userId}_${payment_for}_${amountPaid}`,
-      transactionCode: transactionCode,
-      status: "PAID",
+      transactionCode: 1,
+      status: "CREDITED",
       paymentMethod: paymentMethod,
       amountPaid: amount,
       payment_for: payment_for,
       account: userId,
       transactionId: paymentId,
-      description
+      description,
     };
 
     const first_leg_payment = await prisma.payment.create({ data: first_leg });
@@ -60,10 +60,9 @@ export async function POST(req: Request) {
         status: 200,
       });
     } else {
-      return new Response(
-        JSON.stringify({ message: "Invalid username or password" }),
-        { status: 404 }
-      );
+      return new Response(JSON.stringify({ message: "Transaction Failed" }), {
+        status: 404,
+      });
     }
   } catch (error) {
     console.log(error);

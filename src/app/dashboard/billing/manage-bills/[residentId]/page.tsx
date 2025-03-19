@@ -50,6 +50,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import Link from "next/link";
 
 export type BillStatus = "pending" | "paid" | "overdue" | "cancelled";
 
@@ -484,23 +485,10 @@ export default function ManageBillsPage() {
                 {activeTab === 'history' && 'Account History'}
               </h2>
               {activeTab === 'bills' && (
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button>
+                    <Link href={'/dashboard/billing/manage-bills/1/bill'}>
                       <Plus className="h-4 w-4 mr-2" />
                       Generate Bill
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Generate New Bill</DialogTitle>
-                      <DialogDescription>
-                        Create a new bill for {resident.name}
-                      </DialogDescription>
-                    </DialogHeader>
-                    <BillForm onSubmit={handleGenerateBill} />
-                  </DialogContent>
-                </Dialog>
+                    </Link>
               )}
             </div>
 
