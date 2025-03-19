@@ -7,7 +7,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
 
-    console.log(userId)
+    // console.log(userId)
 
     if (!userId) {
       return new Response(
