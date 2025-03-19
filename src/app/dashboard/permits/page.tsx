@@ -39,7 +39,7 @@ export default function PermitsPage() {
   const router = useRouter();
   const [permits, setPermits] = useState<Permit[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
 
   // useEffect(() => {
   //   if (status === "authenticated" && session?.user) {
@@ -101,9 +101,9 @@ export default function PermitsPage() {
     exportToExcel(filteredPermits, "Permits");
   };
 
-  if (isLoading){
-    return <div>Loading...</div>
-  }
+  // if (isLoading){
+  //   return <div>Loading...</div>
+  // }
 
   return (
     <div className="space-y-6">
