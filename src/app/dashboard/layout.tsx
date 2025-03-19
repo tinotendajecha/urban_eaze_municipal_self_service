@@ -6,6 +6,7 @@ import {
   Menu, X, Bell, Search, Sun, Moon, ChevronDown,
   LayoutDashboard
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 // import { useTheme } from '../hooks/useTheme';
 
 interface NavItem {
@@ -38,6 +39,7 @@ export default function Layout({ children }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const {data: session} = useSession()
 //   const { isDark, toggleTheme } = useTheme();
   
   // Mock user data - replace with actual user data in production
@@ -155,12 +157,12 @@ export default function Layout({ children }: LayoutProps) {
                   className="flex items-center space-x-2"
                 >
                   <img
-                    src={user.avatar}
-                    alt={user.name}
+                    src={"user.avatar"}
+                    alt={session?.user.username}
                     className="w-8 h-8 rounded-full"
                   />
                   <span className="hidden md:block text-sm text-gray-700 dark:text-white">
-                    {user.name}
+                    {session?.user.username}
                   </span>
                   <ChevronDown size={16} className="text-gray-500" />
                 </button>

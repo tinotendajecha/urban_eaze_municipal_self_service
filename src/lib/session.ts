@@ -108,6 +108,7 @@ export const authOptions: NextAuthOptions = {
             id: sessionUser?.id,
             username: sessionUser?.name,
             role: sessionUser?.role,
+            address: sessionUser?.address,
           },
         };
 

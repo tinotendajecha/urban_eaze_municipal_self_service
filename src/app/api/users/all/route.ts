@@ -4,7 +4,12 @@ import prisma from "@/utils/dbconfig";
 export async function GET() {
     try {
       // Fetch all users
-      const users = await prisma.user.findMany();
+      const users = await prisma.user.findMany({
+        include:{
+          payments: true,
+          
+        }
+      });
   
       return new Response(
         JSON.stringify({ message: "Success fetching all users!", users }),

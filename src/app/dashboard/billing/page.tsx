@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,157 +25,116 @@ import {
 import Link from "next/link";
 import { Users, Search, Plus, FileText, Filter, Download } from "lucide-react";
 
+
+interface Bill {
+  id: string;
+  residentId: string;
+  amount: number;
+  dueDate: string;
+  status: "pending" | "paid" | "overdue" | "cancelled";
+  type: "water" | "property_tax" | "waste" | "streetlight" | "other";
+  description: string;
+  createdAt: string;
+  paidAt?: string;
+  paymentMethod?: string;
+  paymentReference?: string;
+}
+
+interface Payment {
+  id: string;
+  account?: string;
+  amountPaid?: string;
+  paymentMethod?: string;
+  transactionCode?: string;
+  transactionId?: string;
+  description?: string;
+  payment_for?: string;
+  status?: string;
+  reference?: string;
+  createdAt?: Date;
+  Bill?: Bill;
+  billId?: string;
+}
+
+interface Resident {
+  id: string;
+  name?: string;
+  address?: string;
+  balance?: number;
+  bills?: Bill[];
+  email?: string;
+  phone?: string;
+  role?: string;
+  standType?: string;
+  createdAt?: Date;
+  payments?: Payment[];
+}
+
 // Mock data - replace with your actual data fetching logic
-const mockResidents = [
+const mockResidents: Resident[] = [
   {
     id: "1",
     name: "John Doe",
-    accountNumber: "ACC-001",
     address: "123 Main St",
     balance: 250.0,
-    lastBillDate: "2024-03-15T00:00:00.000Z",
-    bills: [],
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    accountNumber: "ACC-002",
-    address: "456 Oak Ave",
-    balance: 150.0,
-    lastBillDate: "2024-03-10T00:00:00.000Z",
-    bills: [],
-  },
-  {
-    id: "3",
-    name: "Bob Wilson",
-    accountNumber: "ACC-003",
-    address: "789 Pine Rd",
-    balance: -50.0,
-    lastBillDate: "2024-03-05T00:00:00.000Z",
-    bills: [],
+    bills: [
+      {
+        id: "BILL-001",
+        residentId: "1",
+        amount: 150.0,
+        dueDate: "2024-04-15T00:00:00.000Z",
+        status: "pending",
+        type: "water",
+        description: "March 2024 Water Bill",
+        createdAt: "2024-03-15T00:00:00.000Z",
+      },
+      {
+        id: "BILL-002",
+        residentId: "1",
+        amount: 100.0,
+        dueDate: "2024-04-15T00:00:00.000Z",
+        status: "paid",
+        type: "waste",
+        description: "Q1 2024 Waste Management",
+        createdAt: "2024-03-01T00:00:00.000Z",
+        paidAt: "2024-03-10T00:00:00.000Z",
+        paymentMethod: "credit_card",
+        paymentReference: "PAY-123456",
+      },
+    ],
+    email: "john@example.com",
+    phone: "+1234567890",
   },
 ];
 
-interface BulkBillFormData {
-  type: string;
-  amount: number;
-  dueDate: string;
-  description: string;
-  filter?: string;
-}
-
-const BulkBillForm = ({
-  onSubmit,
-}: {
-  onSubmit: (data: BulkBillFormData) => void;
-}) => {
-  const [formData, setFormData] = useState<BulkBillFormData>({
-    type: "",
-    amount: 0,
-    dueDate: "",
-    description: "",
-    filter: "all",
-  });
-
-  return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="type">Bill Type</Label>
-        <Select
-          value={formData.type}
-          onValueChange={(value) => setFormData({ ...formData, type: value })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select bill type" />
-          </SelectTrigger>
-          <SelectContent className="bg-gray-300">
-            <SelectItem value="water">Water</SelectItem>
-            <SelectItem value="refuse">Refuse Collection</SelectItem>
-            <SelectItem value="streetlight">Street Lighting</SelectItem>
-            <SelectItem value="property_tax">Property Tax</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="amount">Amount per Resident ($)</Label>
-        <Input
-          id="amount"
-          type="number"
-          step="0.01"
-          value={formData.amount}
-          onChange={(e) =>
-            setFormData({ ...formData, amount: parseFloat(e.target.value) })
-          }
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="dueDate">Due Date</Label>
-        <Input
-          id="dueDate"
-          type="date"
-          value={formData.dueDate}
-          onChange={(e) =>
-            setFormData({ ...formData, dueDate: e.target.value })
-          }
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Input
-          id="description"
-          value={formData.description}
-          onChange={(e) =>
-            setFormData({ ...formData, description: e.target.value })
-          }
-          placeholder="Enter bill description"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="filter">Apply To</Label>
-        <Select
-          value={formData.filter}
-          onValueChange={(value) => setFormData({ ...formData, filter: value })}
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-gray-300">
-            <SelectItem value="all">All Residents</SelectItem>
-            <SelectItem value="residential">Residential Only</SelectItem>
-            <SelectItem value="commercial">Commercial Only</SelectItem>
-            <SelectItem value="outstanding">
-              With Outstanding Balance
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <Button className="w-full mt-4" onClick={() => onSubmit(formData)}>
-        Generate Bills
-      </Button>
-    </div>
-  );
-};
 
 export default function BillingPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("residents");
+  const [residents, setResidents] = useState(mockResidents);
 
-  const filteredResidents = mockResidents.filter(
+  useEffect(() => {
+    async function fetchUsers(){
+      const response = await fetch('/api/users/all')
+
+      if (response.ok) {
+        const data = await response.json()
+        setResidents(data.users)
+        // console.log(data)
+      }
+    }
+
+    fetchUsers()
+  }, [])
+
+  const filteredResidents = residents.filter(
     (resident) =>
-      resident.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      resident.accountNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      resident.address.toLowerCase().includes(searchTerm.toLowerCase())
+      resident.name!.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      resident.phone!.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      resident.address!.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleBulkBilling = (data: BulkBillFormData) => {
-    console.log("Generating bulk bills:", data);
-    // Implement bulk billing logic
-  };
+ 
 
   return (
     <div className="space-y-6">
@@ -209,7 +168,7 @@ export default function BillingPage() {
             </div>
             <div>
               <h3 className="font-medium">Total Residents</h3>
-              <p className="text-2xl font-semibold">{mockResidents.length}</p>
+              <p className="text-2xl font-semibold">{residents.length}</p>
             </div>
           </div>
         </Card>
@@ -223,7 +182,7 @@ export default function BillingPage() {
               <p className="text-2xl font-semibold text-red-600">
                 $
                 {mockResidents
-                  .reduce((sum, r) => sum + (r.balance > 0 ? r.balance : 0), 0)
+                  .reduce((sum, r) => sum + (r.balance! > 0 ? r.balance! : 0), 0)
                   .toFixed(2)}
               </p>
             </div>
@@ -240,7 +199,7 @@ export default function BillingPage() {
                 $
                 {mockResidents
                   .reduce(
-                    (sum, r) => sum + (r.balance < 0 ? Math.abs(r.balance) : 0),
+                    (sum, r) => sum + (r.balance! < 0 ? Math.abs(r.balance!) : 0),
                     0
                   )
                   .toFixed(2)}
@@ -285,17 +244,17 @@ export default function BillingPage() {
               <Card key={resident.id} className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
-                    <h3 className="font-semibold text-lg">{resident.name}</h3>
+                    <h3 className="font-semibold text-base">{resident.name}</h3>
                     <div className="flex items-center space-x-2 text-sm text-gray-500">
-                      <span>{resident.accountNumber}</span>
+                      <span>{resident.phone}</span>
                       <span>•</span>
                       <span>{resident.address}</span>
                     </div>
                   </div>
                   <Badge
-                    variant={resident.balance > 0 ? "destructive" : "secondary"}
+                    variant={resident.balance! > 0 ? "destructive" : "secondary"}
                   >
-                    ${Math.abs(resident.balance).toFixed(2)}
+                    ${Math.abs(resident.balance!).toFixed(2)}
                   </Badge>
                 </div>
 
@@ -303,7 +262,7 @@ export default function BillingPage() {
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-500">Last Bill</span>
                     <span className="text-sm">
-                      {new Date(resident.lastBillDate).toLocaleDateString()}
+                      {new Date().toLocaleDateString()}
                     </span>
                   </div>
                 </div>

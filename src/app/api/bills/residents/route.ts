@@ -1,19 +1,59 @@
 import prisma from "@/utils/dbconfig";
+import { generateBillId } from "@/lib/generateBillId";
 import { generatePaymentId } from "@/lib/generatePaymentId";
 
 export async function POST(req: Request) {
   try {
-    const { userId, amountPaid, paymentMethod, description,standType, payment_for } =
-      await req.json();
+    if (!req.body) {
+      throw new Error("Request body is empty or undefined");
+    }
 
-    const paymentId = await generatePaymentId();
+    const data = await req.json();
 
-   
-    const find_residents = await prisma.user.findMany({
-      where: {
-        standType: standType,
-      },
-    });
+    if (!data || typeof data !== "object") {
+      throw new Error("Invalid JSON payload");
+    }
+
+    const {
+      userId,
+      amountPaid,
+      paymentMethod,
+      description,
+      standType,
+      payment_for,
+    } = data;
+
+    console.log("Detail: ", paymentMethod);
+
+    const billId = await generateBillId();
+
+    let find_residents: {
+      id: string;
+      name: string | null;
+      email: string | null;
+      phone: string | null;
+      password: string | null;
+      role: string | null;
+      standType: string | null;
+      address: string | null;
+      createdAt: Date;
+    }[];
+
+    if (standType == "ALL") {
+      find_residents = await prisma.user.findMany({
+        where: {
+          standType: {
+            not: "SYSTEM",
+          },
+        },
+      });
+    } else {
+      find_residents = await prisma.user.findMany({
+        where: {
+          standType: standType,
+        },
+      });
+    }
 
     let second_leg_payment;
     let amount: number = 0;
@@ -24,22 +64,25 @@ export async function POST(req: Request) {
       });
     }
 
-    find_residents.map(async (resident, key) => {
-      amount = amount + Number(amountPaid);
-      const second_leg = {
-        reference: `${userId}_${payment_for}_${amountPaid}`,
-        transactionCode: -1,
-        status: "DEBITED",
-        paymentMethod: paymentMethod,
-        amountPaid: amountPaid,
-        payment_for: payment_for,
-        account: resident.id,
-        transactionId: paymentId,
-        description: description,
-      };
+    const second_leg_payments = await Promise.all(
+      find_residents.map(async (resident) => {
+        amount = amount + Number(amountPaid);
+        const second_leg = {
+          reference: `${userId}_${payment_for}_${amountPaid}`,
+          transactionCode: -1,
+          status: "DEBITED",
+          paymentMethod: paymentMethod,
+          type: "BILL",
+          amountPaid: amountPaid,
+          payment_for: payment_for,
+          account: resident.id,
+          transactionId: billId,
+          description: description,
+        };
 
-      second_leg_payment = await prisma.payment.create({ data: second_leg });
-    });
+        return await prisma.payment.create({ data: second_leg });
+      })
+    );
 
     const first_leg = {
       reference: `${userId}_${payment_for}_${amountPaid}`,
@@ -47,15 +90,16 @@ export async function POST(req: Request) {
       status: "CREDITED",
       paymentMethod: paymentMethod,
       amountPaid: amount,
+      type: "BILL",
       payment_for: payment_for,
       account: userId,
-      transactionId: paymentId,
+      transactionId: billId,
       description,
     };
 
     const first_leg_payment = await prisma.payment.create({ data: first_leg });
 
-    if (first_leg_payment && second_leg_payment) {
+    if (first_leg_payment && second_leg_payments.every(Boolean)) {
       return new Response(JSON.stringify({ message: "Transaction success" }), {
         status: 200,
       });

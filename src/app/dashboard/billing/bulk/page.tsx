@@ -34,11 +34,11 @@ const billTypes = [
   { value: "property_tax", label: "Property Tax" },
 ];
 
-
 const standTypes = [
-  { value: "RESIDENTIAL", label: "Residential" },
+  { value: "ALL", label: "All" },
   { value: "COMMERCIAL", label: "Commercial" },
   { value: "OTHER", label: "Other" },
+  { value: "RESIDENTIAL", label: "Residential" },
 ];
 
 const applyToOptions = [
@@ -77,14 +77,19 @@ export default function BulkBilling() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log(formData);
+    console.log("data: ", formData);
 
     const response = await fetch("/api/bills/residents", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify({userId: formData.userId,
+        amountPaid: formData.amountPaid,
+        paymentMethod: "BILL ENTRY",
+        description: formData.description,
+        standType: formData.standType,
+        payment_for: formData.payment_for,}),
     });
 
     const data = await response.json();
@@ -233,26 +238,6 @@ export default function BulkBilling() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="filter">Apply To</Label>
-                <Select
-                  value={formData.filter}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, filter: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select resident filter" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-300">
-                    {applyToOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
 
               <Button type="submit" className="w-full">
                 Generate Bills

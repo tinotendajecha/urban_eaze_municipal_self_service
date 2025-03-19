@@ -17,7 +17,9 @@ async function main() {
       email: adminEmail,
       password: hashedPassword, 
       role: 'ADMIN',
-      phone: '0774567890'
+      phone: '0774567890',
+      address: 'Municipal HQ',
+      standType: "SYSTEM"
     },
   });
 

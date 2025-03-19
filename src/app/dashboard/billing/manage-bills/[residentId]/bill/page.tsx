@@ -63,7 +63,14 @@ export default function BulkBilling() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify({
+        userId: formData.userId,
+        amountPaid: formData.amountPaid,
+        paymentMethod: "BILL ENTRY",
+        description: formData.description,
+        standType: formData.standType,
+        payment_for: formData.payment_for,
+      }),
     });
 
     const data = await response.json();

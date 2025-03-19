@@ -15,7 +15,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { name, email, phone, password, role, standType } = data;
+    const { name, email, phone, password, role, standType, address } = data;
 
     // Validate required fields
     if (!name || !email || !phone || !password || !role) {
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     // // Store user in the database
     const newUser = await prisma.user.create({
       data: {
-        name, email, phone, password: hashedPassword, role, standType
+        name, email, phone, password: hashedPassword, role, standType, address
       }
     });
 
