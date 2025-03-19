@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import Link from "next/link";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 interface BulkBillFormData {
@@ -32,33 +32,12 @@ const billTypes = [
   { value: "refuse", label: "Refuse Collection" },
   { value: "streetlight", label: "Street Lighting" },
   { value: "property_tax", label: "Property Tax" },
-];
-
-
-const standTypes = [
-  { value: "RESIDENTIAL", label: "Residential" },
-  { value: "COMMERCIAL", label: "Commercial" },
-  { value: "OTHER", label: "Other" },
-];
-
-const applyToOptions = [
-  { value: "ALL", label: "All Residents" },
-  { value: "RESIDENTIAL", label: "Residential Only" },
-  { value: "COMMERCIAL", label: "Commercial Only" },
-  { value: "outstanding", label: "With Outstanding Balance" },
-];
-
-const residents = [
-  { id: 1, name: "John Doe", type: "residential" },
-  { id: 2, name: "Jane Smith", type: "commercial" },
-  { id: 3, name: "Mike Johnson", type: "residential" },
-  { id: 4, name: "Alice Brown", type: "commercial" },
-  { id: 5, name: "Sam Green", type: "outstanding" },
+  { value: "other", label: "Other" },
 ];
 
 export default function BulkBilling() {
-  const { data: session } = useSession();
-  const [showPassword, setShowPassword] = useState(false);
+  const params = useParams();
+  const residentId = params.residentId as string;
   const router = useRouter();
   const [formData, setFormData] = useState<BulkBillFormData>({
     payment_for: "",
@@ -71,15 +50,15 @@ export default function BulkBilling() {
   });
 
   useEffect(() => {
-    setFormData({ ...formData, userId: session?.user.id! });
-  }, [session]);
+    setFormData({ ...formData, userId: residentId });
+  }, [params]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     console.log(formData);
 
-    const response = await fetch("/api/bills/residents", {
+    const response = await fetch("/api/bills/add", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -100,15 +79,6 @@ export default function BulkBilling() {
     router.push("/dashboard/billing");
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -118,7 +88,7 @@ export default function BulkBilling() {
             <UserCog className="w-8 h-8 text-blue-600" />
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Bulk Billing Management System
+                Billing Management System
               </h1>
               <p className="text-sm text-gray-600">
                 Generate and manage bills for residents efficiently
@@ -140,12 +110,9 @@ export default function BulkBilling() {
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-medium text-gray-900">
-              Generate Bulk Bills
-            </h2>
+            <h2 className="text-lg font-medium text-gray-900">Generate Bill</h2>
             <p className="mt-1 text-sm text-gray-600">
-              Enter the billing details and select applicable residents to
-              generate bulk bills.
+              Enter the billing details
             </p>
           </div>
 
@@ -155,6 +122,7 @@ export default function BulkBilling() {
                 <Label htmlFor="payment_for">Bill Type</Label>
                 <Select
                   value={formData.payment_for}
+                  required
                   onValueChange={(value) =>
                     setFormData({ ...formData, payment_for: value })
                   }
@@ -173,32 +141,12 @@ export default function BulkBilling() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="payment_for">Stand Type</Label>
-                <Select
-                  value={formData.standType}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, standType: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select stand type" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-300">
-                    {standTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="amount">Amount per Resident ($)</Label>
+                <Label htmlFor="amount">Amount ($)</Label>
                 <Input
                   id="amount"
                   type="number"
                   step="0.01"
+                  required
                   value={formData.amountPaid}
                   onChange={(e) =>
                     setFormData({
@@ -214,6 +162,7 @@ export default function BulkBilling() {
                 <Input
                   id="dueDate"
                   type="date"
+                  required
                   value={formData.dueDate}
                   onChange={(e) =>
                     setFormData({ ...formData, dueDate: e.target.value })
@@ -233,29 +182,8 @@ export default function BulkBilling() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="filter">Apply To</Label>
-                <Select
-                  value={formData.filter}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, filter: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select resident filter" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-300">
-                    {applyToOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
               <Button type="submit" className="w-full">
-                Generate Bills
+                Generate Bill
               </Button>
             </div>
           </form>
