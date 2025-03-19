@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import { Plus, Search, FileSpreadsheet, FileText, Trash, Trash2Icon } from "lucide-react";
 import { exportToPDF, exportToExcel } from "@/lib/export-utils";
+import { useSession } from "next-auth/react";
 
 interface Permit {
   id: string;
@@ -30,14 +31,20 @@ interface Permit {
 
 export default function PermitsPage() {
 
+  const { data: session } = useSession();
+
+  const userId = session?.user?.id || '06f42895-64b1-4fe2-a903-06668e94265b'  // fix later to use ID
+
   const router = useRouter();
   const [permits, setPermits] = useState<Permit[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
+
+
   useEffect(() => {
       async function fetchPermits(){
-        const response = await fetch('/api/permits/all')
-  
+        const response = await fetch(`/api/permits/all-by-user-id?userId=${userId}`)
+
         if (response.ok) {
           const data = await response.json()
           setPermits(data.permits)
@@ -154,7 +161,7 @@ export default function PermitsPage() {
                   </TableCell>
                   <TableCell>
                     <Button variant="ghost" size="sm">
-                      <Trash2Icon className="h-4 w-4 mr-2 text-red-500" />
+                      <Trash2Icon className="h-4 w-4 mr-2 text-red" />
                       Delete
                     </Button>
                   </TableCell>
