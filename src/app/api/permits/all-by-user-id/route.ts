@@ -6,7 +6,7 @@ export async function GET(req: Request) {
     // Extract `userId` from query parameters
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
-
+  
     // console.log(userId)
 
     if (!userId) {

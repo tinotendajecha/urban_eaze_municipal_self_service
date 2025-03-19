@@ -31,15 +31,24 @@ interface Permit {
 
 export default function PermitsPage() {
 
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   const userId = session?.user?.id || '06f42895-64b1-4fe2-a903-06668e94265b'  // fix later to use ID
 
+  // const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
   const [permits, setPermits] = useState<Permit[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
-
+  // useEffect(() => {
+  //   if (status === "authenticated" && session?.user) {
+  //     setUserId(session.user.id as string);
+  //   }
+  //   console.log(session?.user.id)
+  //   console.log(status)
+  //   setIsLoading(false);
+  // }, [session, status]);
 
   useEffect(() => {
       async function fetchPermits(){
@@ -91,6 +100,10 @@ export default function PermitsPage() {
   const handleExportExcel = () => {
     exportToExcel(filteredPermits, "Permits");
   };
+
+  if (isLoading){
+    return <div>Loading...</div>
+  }
 
   return (
     <div className="space-y-6">
